@@ -13,11 +13,22 @@ def emotion_detector(text_to_analyse):
    # Send a POST request to the API with the text and headers
    response = requests.post(url, json = myobj, headers=header)
 
-   # Parse the JSON response
-   formatted_response = response.json()
+   # Handle 400 Bad Request explicitly
+   if response.status_code == 400:
+      return {
+         'anger': None,
+         'disgust': None,
+         'fear': None,
+         'joy': None,
+         'sadness': None,
+         'dominant_emotion': None,
+        }
 
-   # Try to safely extract emotion data
+   # Parse the JSON response
    try:
+      formatted_response = response.json()
+
+      # Try to safely extract emotion data
       emotions = formatted_response['emotionPredictions'][0]['emotion']
       anger_score = emotions['anger']
       disgust_score = emotions['disgust']
@@ -25,13 +36,22 @@ def emotion_detector(text_to_analyse):
       joy_score = emotions['joy']
       sadness_score = emotions['sadness']
       dominant_emotion = max(emotions, key=emotions.get)
-   except (KeyError, IndexError) as e:
-      return {"error": f"Unexpected response format: {e}"}
 
-   return {
-      'anger': anger_score,
-      'disgust': disgust_score,
-      'fear': fear_score,
-      'joy': joy_score,
-      'dominant_emotion': dominant_emotion
-   }
+      return {
+         'anger': anger_score,
+         'disgust': disgust_score,
+         'fear': fear_score,
+         'joy': joy_score,
+         'dominant_emotion': dominant_emotion
+      }
+   except (KeyError, IndexError, ValueError, TypeError) as e:
+        return {
+            'anger': None,
+            'disgust': None,
+            'fear': None,
+            'joy': None,
+            'sadness': None,
+            'dominant_emotion': None,
+            'error': f"Error parsing response: {e}"
+        }
+        

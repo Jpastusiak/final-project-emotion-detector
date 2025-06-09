@@ -20,8 +20,11 @@ def emot_detector():
    # Extract the dominant_emotion from the response
    dominant_emotion = response['dominant_emotion']
 
-   # Return a formatted string with the sentiment label and score
-   return "For the given statement, the system response is {} The dominant emotion is {}.".format(response, dominant_emotion)
+   if dominant_emotion is None:
+       return "Invalid text! Please try again!"
+   else:
+      # Return a formatted string with the sentiment label and score
+      return "For the given statement, the system response is {} The dominant emotion is {}.".format(response, dominant_emotion)
 
 
 @app.route("/")
